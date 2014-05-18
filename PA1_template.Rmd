@@ -1,0 +1,70 @@
+Assignment
+========================================================
+
+``` {r,echo=TRUE}
+activity <- read.csv("activity.csv", header=TRUE)
+```
+
+
+
+``` {r,echo=TRUE}
+# Calculating total steps per day and creating histogram
+hist(totsteps$x, breaks=12, xlab = "Total steps per day")
+#Calculating Mean & Median Steps per day
+meansteps <- aggregate(totsteps$x, by=list(totsteps$Group.1),FUN=mean)
+mediansteps <- aggregate(totsteps$x, by=list(totsteps$Group.1),FUN=median)
+```
+
+
+
+``` {r, echo=TRUE}
+#Creating dataset with average per time period
+meansteps1 <- aggregate(activity$steps, by=list(activity$interval),FUN=mean, na.rm=TRUE)
+# Plotting data
+plot(meansteps1, type="l")
+#Interval with maximum steps
+maxinterval <- which.max(meansteps1$x)
+```
+
+
+
+``` {r,echo=TRUE}
+#Calculating number of missing values in dataset
+for (Var in names(activity)) {
+missing <- sum(is.na(activity[,Var]))
+if (missing > 0) {
+print(c(Var,missing))
+}}
+```
+
+
+
+``` {r, echo=TRUE}
+#Substituting values with mean and creating new dataset
+a1 <- activity
+a1$date <- as.Date(a1$date)
+for(i in 1:nrow(meansteps1)){
+a1[a1$interval == meansteps1[i,1] & is.na(a1$steps),1] <- meansteps1[i,2]
+}
+#Calculating mean
+tota1 <- aggregate(a1$steps, by=list(a1$date), FUN=sum)
+hist(tota1$x, breaks=12, xlab = "Total steps per day" )
+meana1<- aggregate(tota1$x, by=list(tota1$Group.1), FUN=mean)
+mediana1<- aggregate(tota1$x, by=list(tota1$Group.1), FUN=median)
+#Means increase for missing values inthe past.
+```
+
+
+``` {r,echo=TRUE}
+a1$week <- weekdays(a1$date)
+weekdaya1<- subset(a1, week=="Monday"|week=="Tuesday"|week=="Wednesday"|week=="Thursday"|week=="Friday")
+weekenda1 <- subset(a1,week=="Saturday"|week=="Sunday")
+weekmean <- aggregate(weekdaya1$steps, by=list(weekdaya1$interval),FUN=mean)
+weekendmean <- aggregate(weekenda1$steps, by=list(weekenda1$interval),FUN=mean)
+par(mfrow=c(2,1), mai = c(1, 0.5, 0.5,0.1))
+plot(weekendmean, type="l", main="Weekend", xlab="")
+plot(weekmean, type="l", main="Weekday", xlab="Interval", ylab="Number of steps")
+```
+
+
+
